@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgres://nate:Movies66@localhost:5432/postgres"
+}
+
+model cities {
+  id                                        String     @id(map: "cities_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  location_name                             String?    @db.VarChar
+  street_code                               Int?
+  city_name                                 String?    @db.VarChar
+  province_code                             String?    @db.VarChar
+  province_id                               String?    @db.Uuid
+  country_id                                String?    @db.Uuid
+  country_code                              String?    @db.VarChar
+  countries_cities_country_codeTocountries  countries? @relation("cities_country_codeTocountries", fields: [country_code], references: [country_code], onDelete: Cascade, map: "cities_countries_country_code_fk")
+  countries_cities_country_idTocountries    countries? @relation("cities_country_idTocountries", fields: [country_id], references: [id], onDelete: Cascade, map: "cities_countries_id_fk")
+  provinces_cities_province_idToprovinces   provinces? @relation("cities_province_idToprovinces", fields: [province_id], references: [id], onDelete: Cascade, map: "cities_provinces_id_fk")
+  provinces_cities_province_codeToprovinces provinces? @relation("cities_province_codeToprovinces", fields: [province_code], references: [province_code], onDelete: Cascade, map: "cities_provinces_province_code_fk")
+}
+
+model countries {
+  id                                          String      @id(map: "countries_pk") @db.Uuid
+  country_code                                String?     @unique(map: "countries_pk_code") @db.VarChar
+  country_name                                String?     @unique(map: "countries_pk_name") @db.VarChar
+  cities_cities_country_codeTocountries       cities[]    @relation("cities_country_codeTocountries")
+  cities_cities_country_idTocountries         cities[]    @relation("cities_country_idTocountries")
+  provinces_provinces_country_codeTocountries provinces[] @relation("provinces_country_codeTocountries")
+  provinces_provinces_country_nameTocountries provinces[] @relation("provinces_country_nameTocountries")
+  provinces_provinces_country_idTocountries   provinces[] @relation("provinces_country_idTocountries")
+}
+
+model provinces {
+  id                                          String     @id(map: "provinces_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  province_name                               String?    @unique(map: "provinces_pk_name") @db.VarChar
+  province_code                               String?    @unique(map: "provinces_pk_code") @db.VarChar
+  country_id                                  String?    @db.Uuid
+  country_code                                String?    @db.VarChar
+  country_name                                String?    @db.VarChar
+  cities_cities_province_idToprovinces        cities[]   @relation("cities_province_idToprovinces")
+  cities_cities_province_codeToprovinces      cities[]   @relation("cities_province_codeToprovinces")
+  countries_provinces_country_codeTocountries countries? @relation("provinces_country_codeTocountries", fields: [country_code], references: [country_code], onDelete: Cascade, map: "provinces_countries_country_code_fk")
+  countries_provinces_country_nameTocountries countries? @relation("provinces_country_nameTocountries", fields: [country_name], references: [country_name], onDelete: Cascade, map: "provinces_countries_country_name_fk")
+  countries_provinces_country_idTocountries   countries? @relation("provinces_country_idTocountries", fields: [country_id], references: [id], onDelete: Cascade, map: "provinces_countries_id_fk")
+}
